@@ -29,7 +29,7 @@ const ui = {
         <button class="todos-delete-button" data-id="${
           todo.id
         }">Delete</button></li>
-       </li>`
+      </li>`
     );
   },
 
@@ -54,8 +54,6 @@ const ui = {
   },
 
   async renderDeleteTodo(event) {
-    event.preventDefault();
-
     // Check if clicked element is a delete button
     if (event.target.classList.contains("todos-delete-button")) {
       const elementTodo = event.target.closest("li");
@@ -71,12 +69,10 @@ const ui = {
   },
 
   async renderUpdateTodo(event) {
-    event.preventDefault();
-
     // Check if checkbox is toggled
     if (event.target.matches('input[type="checkbox"]')) {
       const checkbox = event.target;
-      const idTodo = event.target.id.split("-")[1];
+      const idTodo = event.target.id;
 
       const statusTodo = { done: checkbox.checked };
 
