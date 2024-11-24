@@ -1,7 +1,7 @@
 const dom = {
   todosList: document.querySelector("#todos-list"),
-  form: document.querySelector("#form-new-item"),
-  input: document.querySelector("[data-new-item]"),
+  todoForm: document.querySelector("#todos-form"),
+  todoInput: document.querySelector("#todos-input"),
 };
 
 const ui = {
@@ -12,6 +12,9 @@ const ui = {
         `<li>
           <input type="checkbox" ${todo.done ? "checked" : ""} id="${todo.id}"/>
           <label for="${todo.id}">${todo.title}</label>
+          <button class="todos-delete-button" data-id="${
+            todo.id
+          }">Delete</button></li>
         </li>`
       );
     });
@@ -23,6 +26,9 @@ const ui = {
       `<li>
         <input type="checkbox" ${todo.done ? "checked" : ""} id="${todo.id}"/>
         <label for="${todo.id}">${todo.title}</label>
+        <button class="todos-delete-button" data-id="${
+          todo.id
+        }">Delete</button></li>
        </li>`
     );
   },
@@ -32,25 +38,54 @@ const ui = {
 
     const newTodo = {
       id: crypto.randomUUID(),
-      title: dom.input.value,
+      title: dom.todoInput.value,
       done: false,
     };
 
-    // Save todo to server
+    // Save todo on server
     const saveTodo = await server.addTodo(newTodo);
 
     if (saveTodo) {
-      // Clear input field
-      dom.input.value = "";
+      dom.todoInput.value = "";
 
       // Update todo to UI
       ui.renderTodo(saveTodo);
     }
   },
 
-  renderDeleteTodo(todo) {},
+  async renderDeleteTodo(event) {
+    event.preventDefault();
 
-  renderUpdateTodo(todo) {},
+    // Check if clicked element is a delete button
+    if (event.target.classList.contains("todos-delete-button")) {
+      const elementTodo = event.target.closest("li");
+      const idTodo = event.target.getAttribute("data-id");
+
+      // Delete todo from server
+      const deleteTodo = await server.deleteTodo(idTodo);
+
+      if (deleteTodo) {
+        elementTodo.remove();
+      }
+    }
+  },
+
+  async renderUpdateTodo(event) {
+    event.preventDefault();
+
+    // Check if checkbox is toggled
+    if (event.target.matches('input[type="checkbox"]')) {
+      const checkbox = event.target;
+      const idTodo = event.target.id.split("-")[1];
+
+      const statusTodo = { done: checkbox.checked };
+
+      // Update todo on server
+      await server.updateTodo(statusTodo, idTodo);
+    }
+  },
 };
 
-dom.form.addEventListener("submit", ui.renderAddTodo);
+dom.todoForm.addEventListener("submit", ui.renderAddTodo);
+dom.todosList.addEventListener("click", ui.renderDeleteTodo);
+dom.todosList.addEventListener("change", ui.renderUpdateTodo);
