@@ -4,5 +4,4 @@
 
   // Render todos to UI
   ui.renderTodos(todos);
-  dom.form.addEventListener("submit", ui.renderAddTodo);
 })();
